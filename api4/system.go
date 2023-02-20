@@ -43,7 +43,7 @@ func (api *API) InitSystem() {
 		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
 	if err != nil {
-		mlog.Warn("Something went wrong on appNewrelic")
+		mlog.Warn("Something went wrong on appNewrelic", err)
 	}
 
 	api.BaseRoutes.System.Handle(newrelic.WrapHandle(appNewrelic, "/ping", api.APIHandler(getSystemPing))).Methods("GET")
