@@ -43,7 +43,7 @@ func (api *API) InitSystem() {
 		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
 
-	api.BaseRoutes.System.Handle(newrelic.WrapHandleFunc(appNewrelic, "/ping", api.APIHandler(getSystemPing))).Methods("GET")
+	api.BaseRoutes.System.Handle(newrelic.WrapHandle(appNewrelic, "/ping", api.APIHandler(getSystemPing))).Methods("GET")
 
 	api.BaseRoutes.System.Handle("/timezones", api.APISessionRequired(getSupportedTimezones)).Methods("GET")
 
