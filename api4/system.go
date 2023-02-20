@@ -22,6 +22,8 @@ import (
 	"github.com/mattermost/mattermost-server/v6/services/cache"
 	"github.com/mattermost/mattermost-server/v6/services/upgrader"
 	"github.com/mattermost/mattermost-server/v6/shared/mlog"
+
+	//"github.com/newrelic/go-agent/v3/newrelic" todo
 )
 
 const (
@@ -35,7 +37,7 @@ var redirectLocationDataCache = cache.NewLRU(cache.LRUOptions{
 })
 
 func (api *API) InitSystem() {
-	api.BaseRoutes.System.Handle("/ping", api.APIHandler(getSystemPing)).Methods("GET")
+	api.BaseRoutes.System.Handle(newrelic.WrapHandleFunc(appNewrelic, "/ping", api.APIHandler(getSystemPing))).Methods("GET")
 
 	api.BaseRoutes.System.Handle("/timezones", api.APISessionRequired(getSupportedTimezones)).Methods("GET")
 
