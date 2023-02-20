@@ -13,8 +13,6 @@ import (
 	"github.com/mattermost/mattermost-server/v6/app"
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/web"
-
-	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 type Routes struct {
@@ -154,12 +152,6 @@ func Init(srv *app.Server) (*API, error) {
 		srv:        srv,
 		BaseRoutes: &Routes{},
 	}
-
-	appNewrelic, err := newrelic.NewApplication(
-		newrelic.ConfigAppName("TestingMM"),
-		newrelic.ConfigLicense("eu01xxc1419f805697352db19f20d69ffa63NRAL"),
-		newrelic.ConfigAppLogForwardingEnabled(true),
-	)
 
 	api.BaseRoutes.Root = srv.Router
 	api.BaseRoutes.APIRoot = srv.Router.PathPrefix(model.APIURLSuffix).Subrouter()
