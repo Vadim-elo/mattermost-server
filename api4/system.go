@@ -42,6 +42,9 @@ func (api *API) InitSystem() {
 		newrelic.ConfigLicense("eu01xxc1419f805697352db19f20d69ffa63NRAL"),
 		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
+	if err != nil {
+		mlog.Warn("Something went wrong on appNewrelic")
+	}
 
 	api.BaseRoutes.System.Handle(newrelic.WrapHandle(appNewrelic, "/ping", api.APIHandler(getSystemPing))).Methods("GET")
 
