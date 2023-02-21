@@ -38,6 +38,7 @@ var redirectLocationDataCache = cache.NewLRU(cache.LRUOptions{
 
 func (api *API) InitSystem() {
 	api.BaseRoutes.System.Handle(newrelic.WrapHandle(api.newrelic, "/ping", api.APIHandler(getSystemPing))).Methods("GET")
+	api.BaseRoutes.System.Handle(newrelic.WrapHandle(api.newrelic, "/ping2", api.APIHandler(getSystemPing2))).Methods("GET")
 
 	api.BaseRoutes.System.Handle("/timezones", api.APISessionRequired(getSupportedTimezones)).Methods("GET")
 
@@ -125,6 +126,75 @@ func generateSupportPacket(c *Context, w http.ResponseWriter, r *http.Request) {
 	// We are able to pass 0 for content size due to the fact that Golang's serveContent (https://golang.org/src/net/http/fs.go)
 	// already sets that for us
 	writeFileResponse(outputZipFilename, FileMime, 0, now, *c.App.Config().ServiceSettings.WebserverMode, fileBytesReader, true, w, r)
+}
+
+func getSystemPing2(c *Context, w http.ResponseWriter, r *http.Request) { //todo test
+	reqs := c.App.Config().ClientRequirements
+
+	s := make(map[string]string)
+	s[model.STATUS] = model.StatusOk
+	s["AndroidLatestVersion"] = reqs.AndroidLatestVersion
+	s["AndroidMinVersion"] = reqs.AndroidMinVersion
+	s["IosLatestVersion"] = reqs.IosLatestVersion
+	s["IosMinVersion"] = reqs.IosMinVersion
+
+	testflag := c.App.Config().FeatureFlags.TestFeature
+	if testflag != "off" {
+		s["TestFeatureFlag"] = testflag
+	}
+
+	actualGoroutines := runtime.NumGoroutine()
+	if *c.App.Config().ServiceSettings.GoroutineHealthThreshold > 0 && actualGoroutines >= *c.App.Config().ServiceSettings.GoroutineHealthThreshold {
+		mlog.Warn("The number of running goroutines is over the health threshold", mlog.Int("goroutines", actualGoroutines), mlog.Int("health_threshold", *c.App.Config().ServiceSettings.GoroutineHealthThreshold))
+		s[model.STATUS] = model.StatusUnhealthy
+	}
+
+	// Enhanced ping health check:
+	// If an extra form value is provided then perform extra health checks for
+	// database and file storage backends.
+	if r.FormValue("get_server_status") != "" {
+		dbStatusKey := "database_status"
+		s[dbStatusKey] = model.StatusOk
+
+		writeErr := c.App.DBHealthCheckWrite()
+		if writeErr != nil {
+			mlog.Warn("Unable to write to database.", mlog.Err(writeErr))
+			s[dbStatusKey] = model.StatusUnhealthy
+			s[model.STATUS] = model.StatusUnhealthy
+		}
+
+		writeErr = c.App.DBHealthCheckDelete()
+		if writeErr != nil {
+			mlog.Warn("Unable to remove ping health check value from database.", mlog.Err(writeErr))
+			s[dbStatusKey] = model.StatusUnhealthy
+			s[model.STATUS] = model.StatusUnhealthy
+		}
+
+		if s[dbStatusKey] == model.StatusOk {
+			mlog.Debug("Able to write to database.")
+		}
+
+		filestoreStatusKey := "filestore_status"
+		s[filestoreStatusKey] = model.StatusOk
+		appErr := c.App.TestFileStoreConnection()
+		if appErr != nil {
+			s[filestoreStatusKey] = model.StatusUnhealthy
+			s[model.STATUS] = model.StatusUnhealthy
+		}
+
+		w.Header().Set(model.STATUS, s[model.STATUS])
+		w.Header().Set(dbStatusKey, s[dbStatusKey])
+		w.Header().Set(filestoreStatusKey, s[filestoreStatusKey])
+	}
+
+	if deviceID := r.FormValue("device_id"); deviceID != "" {
+		s["CanReceiveNotifications"] = c.App.SendTestPushNotification(deviceID)
+	}
+
+	if s[model.STATUS] != model.StatusOk {
+		w.WriteHeader(http.StatusInternalServerError)
+	}
+	w.Write([]byte(model.MapToJSON(s)))
 }
 
 func getSystemPing(c *Context, w http.ResponseWriter, r *http.Request) {
