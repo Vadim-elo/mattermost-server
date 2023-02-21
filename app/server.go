@@ -188,6 +188,7 @@ func makeHandler(text string) http.Handler {
 func NewServer(options ...Option) (*Server, error) {
 	rootRouter := mux.NewRouter()
 	localRouter := mux.NewRouter()
+	//
 
 	appNewrelic, err := newrelic.NewApplication(
 		newrelic.ConfigAppName("TestingMM"),
