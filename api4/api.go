@@ -4,9 +4,6 @@
 package api4
 
 import (
-	"github.com/mattermost/mattermost-server/shared/mlog"
-	"github.com/newrelic/go-agent/v3/newrelic"
-
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -15,7 +12,10 @@ import (
 
 	"github.com/mattermost/mattermost-server/v6/app"
 	"github.com/mattermost/mattermost-server/v6/model"
+	"github.com/mattermost/mattermost-server/v6/shared/mlog"
 	"github.com/mattermost/mattermost-server/v6/web"
+
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 type Routes struct {
