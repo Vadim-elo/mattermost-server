@@ -179,6 +179,12 @@ func (s *Server) SetStore(st store.Store) {
 	}
 }
 
+func makeHandler(text string) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Write([]byte(text))
+	})
+}
+
 func NewServer(options ...Option) (*Server, error) {
 	rootRouter := mux.NewRouter()
 	localRouter := mux.NewRouter()
@@ -193,6 +199,9 @@ func NewServer(options ...Option) (*Server, error) {
 	}
 
 	rootRouter.Use(nrgorilla.Middleware(appNewrelic))
+
+	_, rootRouter.NotFoundHandler = newrelic.WrapHandle(appNewrelic, "NotFoundHandler", makeHandler("not found"))
+	_, rootRouter.MethodNotAllowedHandler = newrelic.WrapHandle(appNewrelic, "MethodNotAllowedHandler", makeHandler("method not allowed"))
 
 	s := &Server{
 		RootRouter:  rootRouter,
