@@ -268,8 +268,6 @@ func Init(srv *app.Server) (*API, error) {
 
 	api.BaseRoutes.Usage = api.BaseRoutes.APIRoot.PathPrefix("/usage").Subrouter()
 
-	api.InitNewrelic()
-
 	api.InitUser()
 	api.InitBot()
 	api.InitTeam()

@@ -20,7 +20,6 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/getsentry/sentry-go"
 	sentryhttp "github.com/getsentry/sentry-go/http"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -70,6 +69,9 @@ import (
 	"github.com/mattermost/mattermost-server/v6/shared/templates"
 	"github.com/mattermost/mattermost-server/v6/store"
 	"github.com/mattermost/mattermost-server/v6/utils"
+
+	"github.com/newrelic/go-agent/v3/integrations/nrgorilla"
+	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 // declaring this as var to allow overriding in tests
@@ -180,6 +182,17 @@ func (s *Server) SetStore(st store.Store) {
 func NewServer(options ...Option) (*Server, error) {
 	rootRouter := mux.NewRouter()
 	localRouter := mux.NewRouter()
+
+	appNewrelic, err := newrelic.NewApplication(
+		newrelic.ConfigAppName("TestingMM"),
+		newrelic.ConfigLicense("eu01xxc1419f805697352db19f20d69ffa63NRAL"),
+		newrelic.ConfigAppLogForwardingEnabled(true),
+	)
+	if err != nil {
+		mlog.Warn("Something went wrong on appNewrelic", mlog.Err(err))
+	}
+
+	rootRouter.Use(nrgorilla.Middleware(appNewrelic))
 
 	s := &Server{
 		RootRouter:  rootRouter,
