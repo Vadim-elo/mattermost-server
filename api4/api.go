@@ -4,6 +4,9 @@
 package api4
 
 import (
+	"github.com/mattermost/mattermost-server/shared/mlog"
+	"github.com/newrelic/go-agent/v3/newrelic"
+
 	"net/http"
 
 	"github.com/gorilla/mux"
@@ -265,6 +268,15 @@ func Init(srv *app.Server) (*API, error) {
 
 	api.BaseRoutes.Usage = api.BaseRoutes.APIRoot.PathPrefix("/usage").Subrouter()
 
+	appNewrelic, err := newrelic.NewApplication(
+		newrelic.ConfigAppName("TestingMM"),
+		newrelic.ConfigLicense("eu01xxc1419f805697352db19f20d69ffa63NRAL"),
+		newrelic.ConfigAppLogForwardingEnabled(true),
+	)
+	if err != nil {
+		mlog.Warn("Something went wrong on appNewrelic", err)
+	}
+
 	api.InitUser()
 	api.InitBot()
 	api.InitTeam()
@@ -272,7 +284,7 @@ func Init(srv *app.Server) (*API, error) {
 	api.InitPost()
 	api.InitFile()
 	api.InitUpload()
-	api.InitSystem()
+	api.InitSystem(appNewrelic)
 	api.InitLicense()
 	api.InitConfig()
 	api.InitWebhook()
