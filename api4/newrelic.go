@@ -1,7 +1,7 @@
 package api4
 
 import (
-	"github.com/mattermost/mattermost-server/shared/mlog"
+	"github.com/mattermost/mattermost-server/v6/shared/mlog"
 	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
