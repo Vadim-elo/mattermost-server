@@ -274,7 +274,7 @@ func Init(srv *app.Server) (*API, error) {
 		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
 	if err != nil {
-		mlog.Warn("Something went wrong on appNewrelic", err)
+		mlog.Warn("Something went wrong on appNewrelic", mlog.Err(err))
 	}
 
 	api.InitUser()
