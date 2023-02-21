@@ -13,8 +13,6 @@ import (
 	"github.com/mattermost/mattermost-server/v6/app"
 	"github.com/mattermost/mattermost-server/v6/model"
 	"github.com/mattermost/mattermost-server/v6/web"
-
-	"github.com/newrelic/go-agent/v3/newrelic"
 )
 
 type Routes struct {
@@ -147,7 +145,6 @@ type API struct {
 	srv        *app.Server
 	schema     *graphql.Schema
 	BaseRoutes *Routes
-	newrelic   *newrelic.Application
 }
 
 func Init(srv *app.Server) (*API, error) {
