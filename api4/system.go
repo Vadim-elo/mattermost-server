@@ -36,8 +36,8 @@ var redirectLocationDataCache = cache.NewLRU(cache.LRUOptions{
 	Size: RedirectLocationCacheSize,
 })
 
-func (api *API) InitSystem(appNewrelic *newrelic.Application) {
-	api.BaseRoutes.System.Handle(newrelic.WrapHandle(appNewrelic, "/ping", api.APIHandler(getSystemPing))).Methods("GET")
+func (api *API) InitSystem() {
+	api.BaseRoutes.System.Handle(newrelic.WrapHandle(api.newrelic, "/ping", api.APIHandler(getSystemPing))).Methods("GET")
 
 	api.BaseRoutes.System.Handle("/timezones", api.APISessionRequired(getSupportedTimezones)).Methods("GET")
 
