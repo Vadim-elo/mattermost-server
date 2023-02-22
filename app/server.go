@@ -199,7 +199,7 @@ func NewServer(options ...Option) (*Server, error) {
 		mlog.Warn("Something went wrong on appNewrelic", mlog.Err(err))
 	}
 
-	mlog.Warn("name from os", mlog.String(os.Getenv("NEWRELIC_APP_NAME")))
+	mlog.Warn("name from os", mlog.Any(os.Getenv("NEWRELIC_APP_NAME")))
 
 	rootRouter.Use(nrgorilla.Middleware(appNewrelic))
 
