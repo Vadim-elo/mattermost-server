@@ -189,11 +189,10 @@ func makeHandler(text string) http.Handler {
 func NewServer(options ...Option) (*Server, error) {
 	rootRouter := mux.NewRouter()
 	localRouter := mux.NewRouter()
-	//
 
 	appNewrelic, err := newrelic.NewApplication(
-		newrelic.ConfigAppName("TestingMM"),
-		newrelic.ConfigLicense("eu01xxc1419f805697352db19f20d69ffa63NRAL"),
+		newrelic.ConfigAppName(os.Getenv("NEWRELIC_APP_NAME")),
+		newrelic.ConfigLicense(os.Getenv("NEWRELIC_LICENSE")),
 		newrelic.ConfigAppLogForwardingEnabled(true),
 	)
 	if err != nil {
