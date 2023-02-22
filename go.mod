@@ -177,7 +177,6 @@ require (
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	github.com/newrelic/go-agent/v3 v3.20.3
 )
 
 // Hack to prevent the willf/bitset module from being upgraded to 1.2.0.
