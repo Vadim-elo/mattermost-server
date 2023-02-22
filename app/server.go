@@ -186,10 +186,7 @@ func makeHandler(text string) http.Handler {
 	})
 }
 
-func NewServer(options ...Option) (*Server, error) {
-	rootRouter := mux.NewRouter()
-	localRouter := mux.NewRouter()
-
+func linkNewrelic(rootRouter *mux.Router) {
 	appNewrelic, err := newrelic.NewApplication(
 		newrelic.ConfigAppName(os.Getenv("NEWRELIC_APP_NAME")),
 		newrelic.ConfigLicense(os.Getenv("NEWRELIC_LICENSE")),
@@ -203,6 +200,13 @@ func NewServer(options ...Option) (*Server, error) {
 
 	_, rootRouter.NotFoundHandler = newrelic.WrapHandle(appNewrelic, "NotFoundHandler", makeHandler("not found"))
 	_, rootRouter.MethodNotAllowedHandler = newrelic.WrapHandle(appNewrelic, "MethodNotAllowedHandler", makeHandler("method not allowed"))
+}
+
+func NewServer(options ...Option) (*Server, error) {
+	rootRouter := mux.NewRouter()
+	linkNewrelic(rootRouter)
+
+	localRouter := mux.NewRouter()
 
 	s := &Server{
 		RootRouter:  rootRouter,
