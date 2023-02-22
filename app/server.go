@@ -199,8 +199,6 @@ func NewServer(options ...Option) (*Server, error) {
 		mlog.Warn("Something went wrong on appNewrelic", mlog.Err(err))
 	}
 
-	mlog.Warn(os.Getenv("NEWRELIC_APP_NAME"))
-
 	rootRouter.Use(nrgorilla.Middleware(appNewrelic))
 
 	_, rootRouter.NotFoundHandler = newrelic.WrapHandle(appNewrelic, "NotFoundHandler", makeHandler("not found"))
