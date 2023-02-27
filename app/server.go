@@ -195,7 +195,7 @@ func linkNewrelic(rootRouter *mux.Router) {
 	if err != nil {
 		mlog.Warn("Something went wrong on appNewrelic", mlog.Err(err))
 	}
-
+	mlog.Warn(strings.Join(os.Environ(), " ") + "env names")
 	rootRouter.Use(nrgorilla.Middleware(appNewrelic))
 
 	_, rootRouter.NotFoundHandler = newrelic.WrapHandle(appNewrelic, "NotFoundHandler", makeHandler("not found"))
